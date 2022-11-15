@@ -1,0 +1,22 @@
+* Employee interface
+- needs to input location id
+** menu:
+*** rent a car
+*** return a car
+* manager interface
+- no input needed
+** menu:
+*** view all unpaid charges
+*** view user history
+*** add a location
+*** remove a location?
+* customer interface
+- input customer ID or create a new one
+** menu
+*** make a reservation
+*** undo a reservation
+* Rules
+- customer table:
+  - customer and dl is 1:1
+- rental table
+  - a vehicle should not have overlapping dates
