@@ -1,8 +1,18 @@
+* TODO:
+** data validation
+- drivers license
+- age
+- etc
+** make a superclass for clerk and customer so bridge doesn't have to exist. cleaner
+** when displaying a rental, if returned is null, don't say null. say 'not returned' or something like that
 * Employee interface
-- needs to input location id
 ** menu:
 *** rent a car
 *** return a car
+- adding a charge to a customer
+*** update a charge
+*** view vehicles
+- get number of vehicles. they may want to make a request for more vehicles
 * manager interface
 - no input needed
 ** menu:
@@ -10,13 +20,20 @@
 *** view user history
 *** add a location
 *** remove a location?
+*** view all locations with the number of cars they have
+- number out and total number
+*** add cars
+*** remove cars
+- probably not a good idea because of FK constraint
+*** move cars
+- maybe
+*** view unpaid charges
 * customer interface
-- input customer ID or create a new one
 ** menu
-*** make a reservation
-*** undo a reservation
-* Rules
-- customer table:
-  - customer and dl is 1:1
-- rental table
-  - a vehicle should not have overlapping dates
+*** MAYBE: have it so the customer can only make x reservations at once
+*** view user info
+*** update user info
+
+
+
+* RIGOROUSLY TEST PASSING BETWEEN FUNCTIONS BECAUSE SOME OF THE RECURSION MAY BE WEIRD AND PLACE YOU BACK INTO AN UNNATURAL METHOD IF A RETURN WAS DONE INCORRECTLY

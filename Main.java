@@ -1,12 +1,11 @@
 import java.util.Scanner;
-import java.io.*;
 import java.sql.*;
 
 public class Main {
     Connection c;
     Scanner s;
     Customer customer;
-    // Employee employee;
+    Clerk clerk;
     // Manager manager;
 
     public static void main(String[] args) {
@@ -24,15 +23,15 @@ public class Main {
         System.out.println("\t[2] Employee");
         System.out.println("\t[3] Manager");
         System.out.println("\t[X] Exit");
-        Helpers.p("Select an interface > ");
+        Bridge.p("Select an interface > ");
         switch (s.nextLine()) {
             case "1":
-                if (this.customer == null)
-                    this.customer = new Customer(this);
+                if (this.customer == null) this.customer = new Customer(this);
                 this.customer.run();
                 break;
             case "2":
-                // new Employee(con);
+                if (this.clerk == null) this.clerk = new Clerk(this);
+                this.clerk.run();
                 break;
             case "3":
                 // new Manger(con);
