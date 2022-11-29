@@ -4,9 +4,10 @@ import java.sql.*;
 public class Main {
     Connection c;
     Scanner s;
+    Bridge bridge;
     Customer customer;
     Clerk clerk;
-    // Manager manager;
+    Manager manager;
 
     public static void main(String[] args) {
         new Main().run();
@@ -15,6 +16,7 @@ public class Main {
     Main() {
         this.s = new Scanner(System.in);
         this.login();
+        this.bridge = new Bridge(this);
     }
 
     void run() {
@@ -23,7 +25,7 @@ public class Main {
         System.out.println("\t[2] Employee");
         System.out.println("\t[3] Manager");
         System.out.println("\t[X] Exit");
-        Bridge.p("Select an interface > ");
+        Bridge.prompt("Select an interface > ");
         switch (s.nextLine()) {
             case "1":
                 if (this.customer == null) this.customer = new Customer(this);
@@ -34,7 +36,8 @@ public class Main {
                 this.clerk.run();
                 break;
             case "3":
-                // new Manger(con);
+                if (this.manager == null) this.manager = new Manager(this);
+                this.manager.run();
                 break;
             case "X":
             case "x":
@@ -48,7 +51,7 @@ public class Main {
                 }
                 break;
             default:
-                System.out.println("Invalid option. Try again.");
+                Bridge.errln("Invalid option, try again.");
                 run();
         }
     }
@@ -67,10 +70,7 @@ public class Main {
             c.setAutoCommit(false);
             this.c = c;
         } catch (SQLException e) {
-            System.out.println("Invalid credentials. Try again.");
-            login();
-        } catch (Exception e) {
-            System.out.println("An unknown error has occured. Try again.");
+            Bridge.errln("Invalid credentials, try again.");
             login();
         }
     }
