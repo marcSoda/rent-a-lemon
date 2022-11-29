@@ -53,20 +53,15 @@ class Manager {
     void listVehicleCounts() {
         try {
             PreparedStatement ps = SQLStrings.listVehicleCounts(this.main.c);
-            ResultSet result = ps.executeQuery();
-            if (!result.isBeforeFirst()) {
+            ResultSet r = ps.executeQuery();
+            if (!r.isBeforeFirst()) {
                 Bridge.errln("No information is available");
                 this.run();
             } else {
                 System.out.println("\nHere are the vehicle counts by location:\n");
-                String fmtStr = "%-15s%-20s%-20s%-20s";
-                Bridge.headingln(String.format(fmtStr, "Location ID", "Total Vehicles", "Taken Vehicles", "Number Remaining"));
-                while (result.next()) {
-                    System.out.println(String.format(fmtStr, result.getString(1), result.getString(2), result.getString(3), result.getString(4)));
-                }
-                System.out.println();
+                Printer.print(r);
             }
-        } catch(SQLException e) {
+        } catch(Exception e) {
             Bridge.errln("An error has occurred.");
             this.run();
         }
@@ -122,7 +117,7 @@ class Manager {
             this.main.c.commit();
             System.out.println("Vehicle with ID " + vid + " created.");
             this.run();
-        } catch(SQLException e) {
+        } catch(Exception e) {
             Bridge.defaultErr();
             this.createVehicle();
         }
@@ -175,7 +170,7 @@ class Manager {
             this.main.c.commit();
             System.out.println("Location with ID " + lid + " created.");
             this.run();
-        } catch(SQLException e) {
+        } catch(Exception e) {
             Bridge.defaultErr();
             this.createLocation();
         }
@@ -184,20 +179,15 @@ class Manager {
     void listAllOutstandingCharges() {
         try {
             PreparedStatement ps = SQLStrings.listAllOutstandingCharges(this.main.c);
-            ResultSet result = ps.executeQuery();
-            if (!result.isBeforeFirst()) {
+            ResultSet r = ps.executeQuery();
+            if (!r.isBeforeFirst()) {
                 Bridge.errln("There are no outstanding charges.");
                 this.run();
             } else {
                 System.out.println("\nHere is a list of all outstanding charges:\n");
-                String fmtStr = "%-15s%-15s%-15s%-15s%-15s%-15s%-15s%-15s%-15s%-15s%-15s";
-                Bridge.headingln(String.format(fmtStr, "Customer ID", "Location ID", "Charge ID", "Fuel", "Dropoff", "Insurance", "Other", "Rate", "Num Days", "Percent Off", "Total"));
-                while (result.next()) {
-                    System.out.println(String.format(fmtStr, result.getString(1), result.getString(2), result.getString(3), result.getString(4), result.getString(5), result.getString(6), result.getString(7), result.getString(8), result.getString(9), result.getString(10), result.getString(11)));
-                }
-                System.out.println();
+                Printer.print(r);
             }
-        } catch(SQLException e) {
+        } catch(Exception e) {
             Bridge.defaultErr();
         }
     }

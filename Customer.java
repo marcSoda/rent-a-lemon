@@ -77,8 +77,8 @@ class Customer {
             PreparedStatement ps = SQLStrings.createCustomer(this.main.c);
             ps.setString(1, addy);
             ps.setString(2, name);
-            ps.setInt(3, Integer.parseInt(dlInfo.get("lid")));
-            ps.setInt(4, Integer.parseInt(mInfo.get("mid")));
+            ps.setString(3, dlInfo.get("lid"));
+            ps.setString(4, mInfo.get("mid"));
 
             if (ps.executeUpdate() == 0) {
                 Bridge.defaultErr();
@@ -102,7 +102,7 @@ class Customer {
             this.main.c.commit();
             System.out.println("Customer with ID " + this.cid + " created and selected");
             this.run();
-        } catch(SQLException e) {
+        } catch(Exception e) {
             Bridge.defaultErr();
             this.createCustomer();
         }
@@ -114,7 +114,7 @@ class Customer {
         if (dlInfo.get("dln") == null) this.run();
         dlInfo.put("state", this.main.bridge.getString("Input your license state > ", 128));
         if (dlInfo.get("state") == null) this.run();
-        dlInfo.put("age", Integer.toString(this.main.bridge.getInt("Input your license age > ")));
+        dlInfo.put("age", Bridge.itos(this.main.bridge.getInt("Input your license age > ")));
         if (dlInfo.get("age") == null) this.run();
         try {
             PreparedStatement ps = SQLStrings.createLicense(this.main.c);
@@ -127,12 +127,12 @@ class Customer {
             }
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
-                dlInfo.put("lid", Integer.toString(rs.getInt(1)));
+                dlInfo.put("lid", rs.getString(1));
                 return dlInfo;
             }
             Bridge.defaultErr();
             return this.createLicense();
-        } catch(SQLException e) {
+        } catch(Exception e) {
             Bridge.defaultErr();
             return this.createLicense();
         }
@@ -151,30 +151,28 @@ class Customer {
                 return this.getMembershipID();
             } else {
                 System.out.println("\nHere is a list of matching memberships:\n");
-                String fmtStr = "%-7s%-40s";
-                Bridge.headingln(String.format(fmtStr, "ID", "Name"));
-                while (gres.next())
-                    System.out.println(String.format(fmtStr, gres.getString(1), gres.getString(2)));
+                Printer.print(gres);
+
                 Bridge.promptln("If your membership is not listed, enter 1.");
                 int mid = this.main.bridge.getInt("Input membership ID from the list > ");
                 if (mid == -1) this.run();
                 PreparedStatement mps = SQLStrings.getMembershipByID(this.main.c);
                 mps.setInt(1, mid);
-                ResultSet result = mps.executeQuery();
-                if (!result.isBeforeFirst()) {
+                ResultSet r = mps.executeQuery();
+                if (!r.isBeforeFirst()) {
                     Bridge.errln("There are no memberships matching that ID.");
                     return this.getMembershipID();
                 } else {
-                    result.next();
-                    mInfo.put("mid", Integer.toString(result.getInt(1)));
-                    mInfo.put("gname", result.getString(2));
+                    r.next();
+                    mInfo.put("mid", r.getString(1));
+                    mInfo.put("gname", r.getString(2));
                     System.out.println(
                         "Selected membership with ID " + mInfo.get("mid") +
                         " of group " + mInfo.get("gname") + "\n");
                     return mInfo;
                 }
             }
-        } catch(SQLException e) {
+        } catch(Exception e) {
             Bridge.defaultErr();
             return this.getMembershipID();
         }
@@ -198,7 +196,7 @@ class Customer {
             this.main.c.commit();
             System.out.println("You have reserved vehicle " + vid + ".\nYour reservation will expire in 10 days.");
             this.run();
-        } catch(SQLException e) {
+        } catch(Exception e) {
             Bridge.defaultErr();
             this.createReservation();
         }
@@ -221,7 +219,7 @@ class Customer {
             this.main.c.commit();
             System.out.println("You have deleted reservation of ID " + rid);
             this.run();
-        } catch(SQLException e) {
+        } catch(Exception e) {
             Bridge.defaultErr();
             this.deleteReservation();
         }
@@ -232,20 +230,15 @@ class Customer {
         try {
             PreparedStatement ps = SQLStrings.listReservations(this.main.c);
             ps.setInt(1, this.cid);
-            ResultSet result = ps.executeQuery();
-            if (!result.isBeforeFirst()) {
+            ResultSet r = ps.executeQuery();
+            if (!r.isBeforeFirst()) {
                 Bridge.errln("You have no reservations.");
                 this.run();
             } else {
                 System.out.println("\nHere is a list of your reservations:\n");
-                String fmtStr = "%-7s%-15s%-15s%-15s%-15s%-15s%-15s";
-                Bridge.headingln(String.format(fmtStr, "ID", "Created", "Make", "Model", "Year", "Color", "Type"));
-                while (result.next()) {
-                    System.out.println(String.format(fmtStr, result.getString(1), result.getDate(2), result.getString(3), result.getString(4), result.getString(5), result.getString(6), result.getString(7)));
-                }
-                System.out.println();
+                Printer.print(r);
             }
-        } catch(SQLException e) {
+        } catch(Exception e) {
             Bridge.defaultErr();
         }
     }
@@ -267,7 +260,7 @@ class Customer {
             this.main.c.commit();
             System.out.println("We will be coming to your house to collect because we do not store payment info.");
             System.out.println("You have completed a charge of ID " + chid);
-        } catch(SQLException e) {
+        } catch(Exception e) {
             Bridge.defaultErr();
             this.completeCharge();
         }
@@ -278,21 +271,16 @@ class Customer {
         try {
             PreparedStatement ps = SQLStrings.listRentals(this.main.c);
             ps.setInt(1, this.cid);
-            ResultSet result = ps.executeQuery();
-            if (!result.isBeforeFirst()) {
+            ResultSet r = ps.executeQuery();
+            if (!r.isBeforeFirst()) {
                 Bridge.errln("You have no rental history.");
                 this.run();
             } else {
                 System.out.println("\nHere is your rental history:\n");
-                String fmtStr = "%-7s%-15s%-15s%-15s%-15s%-15s%-15s%-15s%-15s";
-                Bridge.headingln(String.format(fmtStr, "ID", "Taken", "Returned", "Rate", "Model", "Year", "Color", "Type", "City"));
-                while (result.next()) {
-                    System.out.println(String.format(fmtStr, result.getString(1), result.getDate(2), result.getDate(3), result.getString(4), result.getString(5), result.getString(6), result.getString(7), result.getString(8), result.getString(9)));
-                }
-                System.out.println();
+                Printer.print(r);
                 this.run();
             }
-        } catch(SQLException e) {
+        } catch(Exception e) {
             Bridge.defaultErr();
             this.run();
         }
@@ -303,20 +291,15 @@ class Customer {
         try {
             PreparedStatement ps = SQLStrings.listCharges(this.main.c);
             ps.setInt(1, this.cid);
-            ResultSet result = ps.executeQuery();
-            if (!result.isBeforeFirst()) {
+            ResultSet r = ps.executeQuery();
+            if (!r.isBeforeFirst()) {
                 Bridge.errln("You have no charge history.");
                 return;
             } else {
                 System.out.println("\nHere is your charge history:\n");
-                String fmtStr = "%-7s%-15s%-15s%-15s%-15s%-15s%-15s%-15s";
-                Bridge.headingln(String.format(fmtStr, "ID", "Fuel", "Dropoff", "Insurance", "Other", "Rate", "Percent Off", "Total"));
-                while (result.next()) {
-                    System.out.println(String.format(fmtStr, result.getString(1), result.getString(2), result.getString(3), result.getString(4), result.getString(5), result.getString(6), result.getString(7), result.getString(8)));
-                }
-                System.out.println();
+                Printer.print(r);
             }
-        } catch(SQLException e) {
+        } catch(Exception e) {
             Bridge.defaultErr();
         }
     }

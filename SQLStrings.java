@@ -70,7 +70,7 @@ class SQLStrings {
 
     static PreparedStatement listVehicles(Connection c) throws SQLException {
         return c.prepareStatement(
-            "select v.vehicle_id, v.make, v.model, v.year, v.color, v.type, v.location_id " +
+            "select v.vehicle_id, v.make, v.model, v.year, v.color, v.type " +
             "from vehicle v " +
             "where v.location_id = ? " +
             "and v.vehicle_id not in " +
@@ -81,7 +81,9 @@ class SQLStrings {
                 "(select vehicle_id from vehicle " +
                 "natural join rental " +
                 "where returned is null) " +
-            "order by v.vehicle_id"
+            "order by v.vehicle_id",
+            ResultSet.TYPE_SCROLL_INSENSITIVE,
+            ResultSet.CONCUR_UPDATABLE
         );
     }
 
@@ -304,4 +306,20 @@ class SQLStrings {
             "    AND rental_id = ?"
         );
     }
+
+    static PreparedStatement updateOdometer(Connection c) throws SQLException {
+        return c.prepareStatement(
+            "UPDATE vehicle " +
+            "SET odo = ? " +
+            "where vehicle_id in ( " +
+            "    select vehicle_id from rental " +
+            "    natural join vehicle " +
+            "    natural join customer " +
+            "    where customer_id = ? " +
+            "    and rental_id = ? " +
+            "    and vehicle_id = ? " +
+            ")"
+        );
+    }
+
 }

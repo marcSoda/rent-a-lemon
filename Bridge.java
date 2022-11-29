@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.*;
 
 class Bridge {
@@ -17,17 +19,17 @@ class Bridge {
         try {
             PreparedStatement ps = SQLStrings.selectCustomer(this.main.c);
             ps.setInt(1, cid);
-            ResultSet result = ps.executeQuery();
-            if (!result.isBeforeFirst()) {
+            ResultSet r = ps.executeQuery();
+            if (!r.isBeforeFirst()) {
                 errln("There are no customers matching that ID.");
                 return this.selectCustomer();
             } else {
-                result.next();
-                int resCid = result.getInt(1);
+                r.next();
+                int resCid = r.getInt(1);
                 System.out.println("Customer with ID of " + resCid + " selected.\n");
                 return resCid;
             }
-        } catch(SQLException e) {
+        } catch(Exception e) {
             defaultErr();
             return this.selectCustomer();
         }
@@ -40,20 +42,16 @@ class Bridge {
         try {
             PreparedStatement ps = SQLStrings.searchCustomer(this.main.c);
             ps.setString(1, "%" + sub + "%");
-            ResultSet result = ps.executeQuery();
-            if (!result.isBeforeFirst()) {
+            ResultSet r = ps.executeQuery();
+            if (!r.isBeforeFirst()) {
                 errln("There are no customers matching that name.");
                 return this.searchCustomer();
             } else {
                 System.out.println("\nHere is a list of matching customers:\n");
-                String fmtStr = "%-7s%-40s";
-                headingln(String.format(fmtStr, "ID", "Name"));
-                while (result.next())
-                    System.out.println(String.format(fmtStr, result.getString(1), result.getString(2)));
-                System.out.println();
+                Printer.print(r);
                 return true;
             }
-        } catch(SQLException e) {
+        } catch(Exception e) {
             defaultErr();
             return this.searchCustomer();
         }
@@ -74,16 +72,16 @@ class Bridge {
         try {
             PreparedStatement ps = SQLStrings.selectVehicle(this.main.c);
             ps.setInt(1, vid);
-            ResultSet result = ps.executeQuery();
-            if (!result.isBeforeFirst()) {
+            ResultSet r = ps.executeQuery();
+            if (!r.isBeforeFirst()) {
                 errln("There are no vehicles matching that ID.");
                 return this.selectVehicle(lid);
             }
-            result.next();
-            int resInt = result.getInt(1);
+            r.next();
+            int resInt = r.getInt(1);
             System.out.println("Vehicle with ID of " + resInt + " selected.\n");
             return resInt;
-        } catch(SQLException e) {
+        } catch(Exception e) {
             defaultErr();
             return this.selectVehicle(lid);
         }
@@ -94,23 +92,19 @@ class Bridge {
         try {
             PreparedStatement ps = SQLStrings.listVehicles(this.main.c);
             ps.setInt(1, lid);
-            ResultSet result = ps.executeQuery();
+            ResultSet r = ps.executeQuery();
             ArrayList<Integer> vids = new ArrayList<Integer>();
-            if (!result.isBeforeFirst()) {
+            if (!r.isBeforeFirst()) {
                 errln("There are no vehicles at this location.");
                 return null;
             } else {
                 System.out.println("\nHere is a list of available vehicles at that location:\n");
-                String fmtStr = "%-7s%-15s%-15s%-15s%-15s%-15s";
-                headingln(String.format(fmtStr, "ID", "Make", "Model", "Year", "Color", "Type"));
-                while (result.next()) {
-                    vids.add(result.getInt(1));
-                    System.out.println(String.format(fmtStr, result.getString(1), result.getString(2), result.getString(3), result.getString(4), result.getString(5), result.getString(6)));
-                }
-                System.out.println();
+                Printer.print(r);
+                r.beforeFirst();
+                while (r.next()) vids.add(r.getInt(1));
                 return vids;
             }
-        } catch(SQLException e) {
+        } catch(Exception e) {
             defaultErr();
             return null;
         }
@@ -125,16 +119,16 @@ class Bridge {
         try {
             PreparedStatement ps = SQLStrings.selectLocation(this.main.c);
             ps.setInt(1, lid);
-            ResultSet result = ps.executeQuery();
-            if (!result.isBeforeFirst()) {
+            ResultSet r = ps.executeQuery();
+            if (!r.isBeforeFirst()) {
                 errln("There are no locations matching that ID.");
                 return this.selectLocation();
             }
-            result.next();
-            int resLid = result.getInt(1);
+            r.next();
+            int resLid = r.getInt(1);
             System.out.println("Location with ID of " + resLid + " selected.\n");
             return resLid;
-        } catch(SQLException e) {
+        } catch(Exception e) {
             defaultErr();
             return this.selectLocation();
         }
@@ -147,20 +141,16 @@ class Bridge {
         try {
             PreparedStatement ps = SQLStrings.searchLocation(this.main.c);
             ps.setString(1, "%" + sub + "%");
-            ResultSet result = ps.executeQuery();
-            if (!result.isBeforeFirst()) {
+            ResultSet r = ps.executeQuery();
+            if (!r.isBeforeFirst()) {
                 errln("There are no locations matching that name.");
                 return this.searchLocation();
             } else {
                 System.out.println("\nHere is a list of matching locations:\n");
-                String fmtStr = "%-7s%-25s%-25s%-25s%-7s";
-                headingln(String.format(fmtStr, "ID", "Street", "City", "State", "Zip"));
-                while (result.next())
-                    System.out.println(String.format(fmtStr, result.getString(1), result.getString(2), result.getString(3), result.getString(4), result.getString(5)));
-                System.out.println();
+                Printer.print(r);
                 return true;
             }
-        } catch(SQLException e) {
+        } catch(Exception e) {
             defaultErr();
             return this.searchLocation();
         }
@@ -170,21 +160,16 @@ class Bridge {
         try {
             PreparedStatement ps = SQLStrings.listOutstandingChargesForCustomer(this.main.c);
             ps.setInt(1, cid);
-            ResultSet result = ps.executeQuery();
-            if (!result.isBeforeFirst()) {
+            ResultSet r = ps.executeQuery();
+            if (!r.isBeforeFirst()) {
                 Bridge.errln("There are no outstanding charges.");
                 return;
             } else {
                 System.out.println("\nHere is a list of outstanding charges:\n");
-                String fmtStr = "%-15s%-15s%-15s%-15s%-15s%-15s%-15s%-15s%-15s%-15s";
-                Bridge.headingln(String.format(fmtStr, "Charge ID", "Location ID", "Fuel", "Dropoff", "Insurance", "Other", "Rate", "Num Days", "Percent Off", "Total"));
-                while (result.next()) {
-                    System.out.println(String.format(fmtStr, result.getString(1), result.getString(2), result.getString(3), result.getString(4), result.getString(5), result.getString(6), result.getString(7), result.getString(8), result.getString(9), result.getString(10)));
-                }
-                System.out.println();
+                Printer.print(r);
                 return;
             }
-        } catch(SQLException e) {
+        } catch(Exception e) {
             Bridge.defaultErr();
             return;
         }
@@ -194,21 +179,16 @@ class Bridge {
         try {
             PreparedStatement ps = SQLStrings.listOutstandingChargesForLocation(this.main.c);
             ps.setInt(1, lid);
-            ResultSet result = ps.executeQuery();
-            if (!result.isBeforeFirst()) {
+            ResultSet r = ps.executeQuery();
+            if (!r.isBeforeFirst()) {
                 Bridge.errln("No outstanding charges.");
                 return;
             } else {
                 System.out.println("\nHere is a list of outstanding charges:\n");
-                String fmtStr = "%-15s%-15s%-15s%-15s%-15s%-15s%-15s%-15s%-15s%-15s";
-                Bridge.headingln(String.format(fmtStr, "Charge ID", "Customer ID", "Fuel", "Dropoff", "Insurance", "Other", "Rate", "Num Days", "Percent Off", "Total"));
-                while (result.next()) {
-                    System.out.println(String.format(fmtStr, result.getString(1), result.getString(2), result.getString(3), result.getString(4), result.getString(5), result.getString(6), result.getString(7), result.getString(8), result.getString(9), result.getString(10)));
-                }
-                System.out.println();
+                Printer.print(r);
                 return;
             }
-        } catch(SQLException e) {
+        } catch(Exception e) {
             Bridge.defaultErr();
             return;
         }
@@ -230,7 +210,7 @@ class Bridge {
             if (commit) this.main.c.commit();
             System.out.println("You have moved the vehicle of ID " + vid + " to the location of ID " + toLid);
             return true;
-        } catch(SQLException e) {
+        } catch(Exception e) {
             Bridge.defaultErr();
             return false;
         }
@@ -261,6 +241,36 @@ class Bridge {
         errln("An error has occurred. Try again");
     }
 
+    static double round(Double val) {
+        BigDecimal bd = BigDecimal.valueOf(val);
+        bd = bd.setScale(2, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
+
+    static Double stod(String val) {
+        try { return Double.parseDouble(val); }
+        catch (Exception e) {
+            errln("Failed to parse input");
+            return -1.;
+        }
+    }
+
+    static int stoi(String val) {
+        try { return Integer.parseInt(val); }
+        catch (Exception e) {
+            errln("Failed to parse input");
+            return -1;
+        }
+    }
+
+    static String itos(int val) {
+        try { return Integer.toString(val); }
+        catch (Exception e) {
+            errln("Failed to parse input");
+            return null;
+        }
+    }
+
     boolean binaryQuery(String prompt) {
         prompt(prompt + " Y/N > ");
         String resp = this.main.s.nextLine();
@@ -276,7 +286,7 @@ class Bridge {
         prompt(query);
         String line = this.main.s.nextLine();
         if (line.equalsIgnoreCase("X")) return null;
-        try { return Double.parseDouble(line); }
+        try { return round(Double.parseDouble(line)); }
         catch (NumberFormatException e) {
             errln("Input must be a decimal");
             return this.getDouble(query);
