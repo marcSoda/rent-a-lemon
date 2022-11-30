@@ -10,7 +10,7 @@ class Customer {
     }
 
     void run() {
-        System.out.println("\nEntered customer interface?");
+        System.out.println("\nCustomer Interface?");
         System.out.println("\t[1] Log in using your customer ID");
         System.out.println("\t[2] Create a new customer account");
         System.out.println("\t[3] Make a reservation");
@@ -74,7 +74,7 @@ class Customer {
         if (this.main.bridge.binaryQuery("\nDo you belong to a group that has a membership discount?"))
             mInfo = getMembershipID();
         try {
-            PreparedStatement ps = SQLStrings.createCustomer(this.main.c);
+            PreparedStatement ps = SQL.createCustomer(this.main.c);
             ps.setString(1, addy);
             ps.setString(2, name);
             ps.setString(3, dlInfo.get("lid"));
@@ -122,7 +122,7 @@ class Customer {
         dlInfo.put("age", Bridge.itos(this.main.bridge.getInt("Input your license age > ")));
         if (dlInfo.get("age") == null) this.run();
         try {
-            PreparedStatement ps = SQLStrings.createLicense(this.main.c);
+            PreparedStatement ps = SQL.createLicense(this.main.c);
             ps.setString(1, dlInfo.get("dln"));
             ps.setString(2, dlInfo.get("state"));
             ps.setString(3, dlInfo.get("age"));
@@ -148,7 +148,7 @@ class Customer {
         String gsub = this.main.bridge.getString("Search for your company > ", 256);
         if (gsub == null) this.run();
         try {
-            PreparedStatement gps = SQLStrings.searchMembership(this.main.c);
+            PreparedStatement gps = SQL.searchMembership(this.main.c);
             gps.setString(1, "%" + gsub + "%");
             ResultSet gres = gps.executeQuery();
             if (!gres.isBeforeFirst()) {
@@ -161,7 +161,7 @@ class Customer {
                 Bridge.promptln("If your membership is not listed, enter 1.");
                 int mid = this.main.bridge.getInt("Input membership ID from the list > ");
                 if (mid == -1) this.run();
-                PreparedStatement mps = SQLStrings.getMembershipByID(this.main.c);
+                PreparedStatement mps = SQL.getMembershipByID(this.main.c);
                 mps.setInt(1, mid);
                 ResultSet r = mps.executeQuery();
                 if (!r.isBeforeFirst()) {
@@ -191,7 +191,7 @@ class Customer {
             this.run();
         }
         try {
-            PreparedStatement ps = SQLStrings.createReservation(this.main.c);
+            PreparedStatement ps = SQL.createReservation(this.main.c);
             ps.setInt(1, this.cid);
             ps.setInt(2, vid);
             if (ps.executeUpdate() == 0) {
@@ -222,7 +222,7 @@ class Customer {
         int chid = this.main.bridge.getInt("Input the charge ID > ");
         if (chid == -1) return;
         try {
-            PreparedStatement ps = SQLStrings.completeCharge(this.main.c);
+            PreparedStatement ps = SQL.completeCharge(this.main.c);
             ps.setInt(1, this.cid);
             ps.setInt(2, chid);
             if (ps.executeUpdate() == 0) {
@@ -242,7 +242,7 @@ class Customer {
     void listReservations() {
         this.checkIDAlreadySelected(true);
         try {
-            PreparedStatement ps = SQLStrings.listReservations(this.main.c);
+            PreparedStatement ps = SQL.listReservations(this.main.c);
             ps.setInt(1, this.cid);
             ResultSet r = ps.executeQuery();
             if (!r.isBeforeFirst()) {
@@ -259,7 +259,7 @@ class Customer {
     void listRentals() {
         this.checkIDAlreadySelected(true);
         try {
-            PreparedStatement ps = SQLStrings.listRentals(this.main.c);
+            PreparedStatement ps = SQL.listRentals(this.main.c);
             ps.setInt(1, this.cid);
             ResultSet r = ps.executeQuery();
             if (!r.isBeforeFirst()) {
@@ -279,7 +279,7 @@ class Customer {
     void listCharges() {
         this.checkIDAlreadySelected(true);
         try {
-            PreparedStatement ps = SQLStrings.listCharges(this.main.c);
+            PreparedStatement ps = SQL.listCharges(this.main.c);
             ps.setInt(1, this.cid);
             ResultSet r = ps.executeQuery();
             if (!r.isBeforeFirst()) {

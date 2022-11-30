@@ -7,7 +7,7 @@ public class Main {
     Scanner s;
     Bridge bridge;
     Customer customer;
-    Clerk clerk;
+    Staff staff;
     Manager manager;
 
     public static void main(String[] args) {
@@ -23,7 +23,7 @@ public class Main {
     void run() {
         System.out.println("Interface list:");
         System.out.println("\t[1] Customer");
-        System.out.println("\t[2] Employee");
+        System.out.println("\t[2] Staff");
         System.out.println("\t[3] Manager");
         System.out.println("\t[X] Exit");
         Bridge.prompt("Select an interface > ");
@@ -33,8 +33,8 @@ public class Main {
                 this.customer.run();
                 break;
             case "2":
-                if (this.clerk == null) this.clerk = new Clerk(this);
-                this.clerk.run();
+                if (this.staff == null) this.staff = new Staff(this);
+                this.staff.run();
                 break;
             case "3":
                 if (this.manager == null) this.manager = new Manager(this);

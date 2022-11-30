@@ -8,7 +8,7 @@ class Manager {
     }
 
     void run() {
-        System.out.println("\nEntered manager interface?");
+        System.out.println("\nManager Interface?");
         System.out.println("\t[1] View number of vehicles at each location");
         System.out.println("\t[2] Add a vehicle");
         System.out.println("\t[3] Move a vehicle");
@@ -52,7 +52,7 @@ class Manager {
 
     void listVehicleCounts() {
         try {
-            PreparedStatement ps = SQLStrings.listVehicleCounts(this.main.c);
+            PreparedStatement ps = SQL.listVehicleCounts(this.main.c);
             ResultSet r = ps.executeQuery();
             if (!r.isBeforeFirst()) {
                 Bridge.errln("No information is available");
@@ -84,7 +84,7 @@ class Manager {
         int odo = this.main.bridge.getInt("Input the Odometer Reading > ");
         if (odo == -1) return;
         try {
-            PreparedStatement ps = SQLStrings.createVehicle(this.main.c);
+            PreparedStatement ps = SQL.createVehicle(this.main.c);
             ps.setString(1, make);
             ps.setString(2, model);
             ps.setInt(3, year);
@@ -145,7 +145,7 @@ class Manager {
         int zip = this.main.bridge.getInt("Input the Zip Code > ");
         if (zip == -1) return;
         try {
-            PreparedStatement ps = SQLStrings.createLocation(this.main.c);
+            PreparedStatement ps = SQL.createLocation(this.main.c);
             ps.setString(1, street);
             ps.setString(2, city);
             ps.setString(3, state);
@@ -178,7 +178,7 @@ class Manager {
 
     void listAllOutstandingCharges() {
         try {
-            PreparedStatement ps = SQLStrings.listAllOutstandingCharges(this.main.c);
+            PreparedStatement ps = SQL.listAllOutstandingCharges(this.main.c);
             ResultSet r = ps.executeQuery();
             if (!r.isBeforeFirst()) {
                 Bridge.errln("There are no outstanding charges.");

@@ -1,6 +1,6 @@
 import java.sql.*;
 
-class SQLStrings {
+class SQL {
     static PreparedStatement searchCustomer(Connection c) throws SQLException {
         return c.prepareStatement(
             "SELECT customer_id, name " +

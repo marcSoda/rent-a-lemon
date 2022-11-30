@@ -3,16 +3,16 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-class Clerk {
+class Staff {
     Main main;
     int lid = -1;
 
-    Clerk(Main main) {
+    Staff(Main main) {
         this.main = main;
     }
 
     void run() {
-        System.out.println("\nEntered employee interface?");
+        System.out.println("\nSmployee Interface?");
         System.out.println("\t[1] Log in with location ID");
         System.out.println("\t[2] Rent out a car");
         System.out.println("\t[3] Accept a return");
@@ -61,7 +61,7 @@ class Clerk {
         Double rate = this.main.bridge.getDouble("Negotiate a daily rate and input it here > ");
         if (rate == null) return;
         try {
-            PreparedStatement ps = SQLStrings.createRental(this.main.c);
+            PreparedStatement ps = SQL.createRental(this.main.c);
             ps.setDouble(1, rate);
             ps.setInt(2, cid);
             ps.setInt(3, vid);
@@ -98,7 +98,7 @@ class Clerk {
         this.checkIDAlreadySelected(true);
         ArrayList<int[]> vidrids = new ArrayList<int[]>();
         try {
-            PreparedStatement ps = SQLStrings.listReservationsAtLocation(this.main.c);
+            PreparedStatement ps = SQL.listReservationsAtLocation(this.main.c);
             ps.setInt(1, cid);
             ps.setInt(2, this.lid);
             ResultSet r = ps.executeQuery();
@@ -175,7 +175,7 @@ class Clerk {
         System.out.println("The sum of miscellaneous charges is $" + other);
 
         try {
-            PreparedStatement arps = SQLStrings.acceptReturn(this.main.c);
+            PreparedStatement arps = SQL.acceptReturn(this.main.c);
             arps.setInt(1, cid);
             arps.setString(2, rental.get("rid"));
             if (arps.executeUpdate() == 0) {
@@ -185,7 +185,7 @@ class Clerk {
             }
             System.out.println("You have returned a rental of ID " + rental.get("rid") + "\nThis will be processed after the following charge is created.");
 
-            PreparedStatement ccps = SQLStrings.createCharge(this.main.c);
+            PreparedStatement ccps = SQL.createCharge(this.main.c);
             ccps.setDouble(1, fuel);
             ccps.setDouble(2, dropoff);
             ccps.setDouble(3, insurance);
@@ -196,7 +196,7 @@ class Clerk {
                 this.acceptReturn();
             }
 
-            PreparedStatement uops = SQLStrings.updateOdometer(this.main.c);
+            PreparedStatement uops = SQL.updateOdometer(this.main.c);
             uops.setInt(1, odo);
             uops.setInt(2, cid);
             uops.setString(3, rental.get("rid"));
@@ -230,7 +230,7 @@ class Clerk {
 
     void listNonreturnedRentals(int cid) {
         try {
-            PreparedStatement ps = SQLStrings.listNonreturnedRentals(this.main.c);
+            PreparedStatement ps = SQL.listNonreturnedRentals(this.main.c);
             ps.setInt(1, cid);
             ResultSet r = ps.executeQuery();
             if (!r.isBeforeFirst()) {
@@ -252,7 +252,7 @@ class Clerk {
         if (rid == -1) return null;
         HashMap<String, String> rental = new HashMap<String, String>();
         try {
-            PreparedStatement ps = SQLStrings.getRental(this.main.c);
+            PreparedStatement ps = SQL.getRental(this.main.c);
             ps.setInt(1, cid);
             ps.setInt(2, rid);
             ResultSet r = ps.executeQuery();
@@ -282,7 +282,7 @@ class Clerk {
     void listVehicleStatuses() {
         checkIDAlreadySelected(true);
         try {
-            PreparedStatement ps = SQLStrings.listVehicleStatuses(this.main.c);
+            PreparedStatement ps = SQL.listVehicleStatuses(this.main.c);
             ps.setInt(1, this.lid);
             ps.setInt(2, this.lid);
             ResultSet r = ps.executeQuery();

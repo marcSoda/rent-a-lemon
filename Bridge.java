@@ -17,7 +17,7 @@ class Bridge {
         int cid = this.getInt("Input your customer ID > ");
         if (cid == -1) return -1;
         try {
-            PreparedStatement ps = SQLStrings.selectCustomer(this.main.c);
+            PreparedStatement ps = SQL.selectCustomer(this.main.c);
             ps.setInt(1, cid);
             ResultSet r = ps.executeQuery();
             if (!r.isBeforeFirst()) {
@@ -40,7 +40,7 @@ class Bridge {
         String sub = this.getString("Input your name or a substring of your name > ", 256);
         if (sub == null) return false;
         try {
-            PreparedStatement ps = SQLStrings.searchCustomer(this.main.c);
+            PreparedStatement ps = SQL.searchCustomer(this.main.c);
             ps.setString(1, "%" + sub + "%");
             ResultSet r = ps.executeQuery();
             if (!r.isBeforeFirst()) {
@@ -70,7 +70,7 @@ class Bridge {
             return this.selectVehicle(lid);
         }
         try {
-            PreparedStatement ps = SQLStrings.selectVehicle(this.main.c);
+            PreparedStatement ps = SQL.selectVehicle(this.main.c);
             ps.setInt(1, vid);
             ResultSet r = ps.executeQuery();
             if (!r.isBeforeFirst()) {
@@ -90,7 +90,7 @@ class Bridge {
     //used by customer and clerk
     ArrayList<Integer> listVehicles(int lid) {
         try {
-            PreparedStatement ps = SQLStrings.listVehicles(this.main.c);
+            PreparedStatement ps = SQL.listVehicles(this.main.c);
             ps.setInt(1, lid);
             ResultSet r = ps.executeQuery();
             ArrayList<Integer> vids = new ArrayList<Integer>();
@@ -117,7 +117,7 @@ class Bridge {
         int lid = this.getInt("Input your location ID > ");
         if (lid == -1) return -1;
         try {
-            PreparedStatement ps = SQLStrings.selectLocation(this.main.c);
+            PreparedStatement ps = SQL.selectLocation(this.main.c);
             ps.setInt(1, lid);
             ResultSet r = ps.executeQuery();
             if (!r.isBeforeFirst()) {
@@ -139,7 +139,7 @@ class Bridge {
         String sub = this.getString("Search for your location city > ", 128);
         if (sub == null) return false;
         try {
-            PreparedStatement ps = SQLStrings.searchLocation(this.main.c);
+            PreparedStatement ps = SQL.searchLocation(this.main.c);
             ps.setString(1, "%" + sub + "%");
             ResultSet r = ps.executeQuery();
             if (!r.isBeforeFirst()) {
@@ -159,7 +159,7 @@ class Bridge {
     //returns false when there are no outstanding charges or error
     boolean listOutstandingChargesForCustomer(int cid) {
         try {
-            PreparedStatement ps = SQLStrings.listOutstandingChargesForCustomer(this.main.c);
+            PreparedStatement ps = SQL.listOutstandingChargesForCustomer(this.main.c);
             ps.setInt(1, cid);
             ResultSet r = ps.executeQuery();
             if (!r.isBeforeFirst()) {
@@ -178,7 +178,7 @@ class Bridge {
 
     void listOutstandingChargesForLocation(int lid) {
         try {
-            PreparedStatement ps = SQLStrings.listOutstandingChargesForLocation(this.main.c);
+            PreparedStatement ps = SQL.listOutstandingChargesForLocation(this.main.c);
             ps.setInt(1, lid);
             ResultSet r = ps.executeQuery();
             if (!r.isBeforeFirst()) {
@@ -198,7 +198,7 @@ class Bridge {
     //return false on error
     boolean moveVehicle(int fromLid, int toLid, int vid, boolean commit) {
         try {
-            PreparedStatement ps = SQLStrings.moveVehicle(this.main.c);
+            PreparedStatement ps = SQL.moveVehicle(this.main.c);
             ps.setInt(1, toLid);
             ps.setInt(2, vid);
             ps.setInt(3, fromLid);
@@ -220,7 +220,7 @@ class Bridge {
     //returns false on error
     boolean deleteReservation(int rid, int cid, boolean commit) {
         try {
-            PreparedStatement ps = SQLStrings.deleteReservation(this.main.c);
+            PreparedStatement ps = SQL.deleteReservation(this.main.c);
             ps.setInt(1, rid);
             ps.setInt(2, cid);
             if (ps.executeUpdate() == 0) {
