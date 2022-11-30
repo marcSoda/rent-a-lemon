@@ -207,40 +207,7 @@ class Customer {
         this.listReservations();
         int rid = this.main.bridge.getInt("Input the reservation ID > ");
         if (rid == -1) return;
-        try {
-            PreparedStatement ps = SQLStrings.deleteReservation(this.main.c);
-            ps.setInt(1, rid);
-            ps.setInt(2, this.cid);
-            if (ps.executeUpdate() == 0) {
-                Bridge.defaultErr();
-                Bridge.errln("You may have entered a reservation ID that does not belong to you.");
-                this.deleteReservation();
-            }
-            this.main.c.commit();
-            System.out.println("You have deleted reservation of ID " + rid);
-            this.run();
-        } catch(Exception e) {
-            Bridge.defaultErr();
-            this.deleteReservation();
-        }
-    }
-
-    void listReservations() {
-        this.checkIDAlreadySelected(true);
-        try {
-            PreparedStatement ps = SQLStrings.listReservations(this.main.c);
-            ps.setInt(1, this.cid);
-            ResultSet r = ps.executeQuery();
-            if (!r.isBeforeFirst()) {
-                Bridge.errln("You have no reservations.");
-                this.run();
-            } else {
-                System.out.println("\nHere is a list of your reservations:\n");
-                Printer.print(r);
-            }
-        } catch(Exception e) {
-            Bridge.defaultErr();
-        }
+        this.main.bridge.deleteReservation(rid, this.cid, true);
     }
 
     void completeCharge() {
@@ -263,6 +230,23 @@ class Customer {
         } catch(Exception e) {
             Bridge.defaultErr();
             this.completeCharge();
+        }
+    }
+
+    void listReservations() {
+        this.checkIDAlreadySelected(true);
+        try {
+            PreparedStatement ps = SQLStrings.listReservations(this.main.c);
+            ps.setInt(1, this.cid);
+            ResultSet r = ps.executeQuery();
+            if (!r.isBeforeFirst()) {
+                Bridge.errln("You have no reservations.");
+            } else {
+                System.out.println("\nHere is a list of your reservations:\n");
+                Printer.print(r);
+            }
+        } catch(Exception e) {
+            Bridge.defaultErr();
         }
     }
 

@@ -1,5 +1,6 @@
 import java.util.Scanner;
 import java.sql.*;
+import java.io.Console;
 
 public class Main {
     Connection c;
@@ -15,8 +16,8 @@ public class Main {
 
     Main() {
         this.s = new Scanner(System.in);
-        this.login();
         this.bridge = new Bridge(this);
+        this.login();
     }
 
     void run() {
@@ -57,18 +58,23 @@ public class Main {
     }
 
     void login() {
-        // System.out.println("Please input your Oracle username on Edgar1:");
-        // String login = this.s.nextLine();
-        // System.out.println("Please input your Oracle password on Edgar1:");
-        // Console console = System.console();
-        // char[] pwd = console.readPassword();
+        String login = this.bridge.getString("Input your edgar1 oracle login > ", 64);
+        if (login == null) {
+            Bridge.errln("You may not exit out of this prompt. Try again.");
+            this.login();
+        }
+        Console console = System.console();
+        Bridge.prompt("Input your edgar 1 oracle password > ");
+        String pwd = new String(console.readPassword());
 
         Connection c;
         try {
-            // c = DriverManager.getConnection("jdbc:oracle:thin:@127.0.0.1:1521:cse241", login, new String(pwd));
-            c = DriverManager.getConnection("jdbc:oracle:thin:@127.0.0.1:1521:cse241", "masa20", "1234");
+            c = DriverManager.getConnection("jdbc:oracle:thin:@edgar1.cse.lehigh.edu:1521:cse241", login, pwd);
+            // c = DriverManager.getConnection("jdbc:oracle:thin:@127.0.0.1:1521:cse241", login, pwd);
+            // c = DriverManager.getConnection("jdbc:oracle:thin:@127.0.0.1:1521:cse241", "masa20", "1234");
             c.setAutoCommit(false);
             this.c = c;
+            System.out.println("Welcome.");
         } catch (SQLException e) {
             Bridge.errln("Invalid credentials, try again.");
             login();

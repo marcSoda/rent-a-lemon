@@ -194,7 +194,7 @@ class Bridge {
         }
     }
 
-    //return false on errro
+    //return false on error
     boolean moveVehicle(int fromLid, int toLid, int vid, boolean commit) {
         try {
             PreparedStatement ps = SQLStrings.moveVehicle(this.main.c);
@@ -213,6 +213,36 @@ class Bridge {
         } catch(Exception e) {
             Bridge.defaultErr();
             return false;
+        }
+    }
+
+    //returns false on error
+    boolean deleteReservation(int rid, int cid, boolean commit) {
+        try {
+            PreparedStatement ps = SQLStrings.deleteReservation(this.main.c);
+            ps.setInt(1, rid);
+            ps.setInt(2, cid);
+            if (ps.executeUpdate() == 0) {
+                Bridge.defaultErr();
+                Bridge.errln("You may have entered a reservation ID that does not belong to you.");
+                return this.deleteReservation(rid, cid, commit);
+            }
+            if (commit) this.main.c.commit();
+            System.out.println("You have deleted the reservation of ID " + rid);
+            return true;
+        } catch(Exception e) {
+            Bridge.defaultErr();
+            return this.deleteReservation(rid, cid, commit);
+        }
+    }
+
+    void rollback() {
+        try {
+            this.main.c.rollback();
+            Bridge.errln("All pending changes have been reverted.");
+        } catch (Exception e) {
+            Bridge.errln("A fatal error has occurred.\nGracefully exiting.\nPlease try again.");
+            System.exit(0);
         }
     }
 
@@ -311,12 +341,10 @@ class Bridge {
         if (line.length() == 0) {
             errln("Input must not be empty.");
             return this.getString(query, maxLen);
-        }
-        if (line.contains("'")) {
+        } else if (line.contains("'")) {
             errln("Input may not contain single quotes.");
             return this.getString(query, maxLen);
-        }
-        if (line.length() > maxLen) {
+        } else if (line.length() > maxLen) {
             errln("Input may not exceed " + maxLen + " characters.");
             return this.getString(query, maxLen);
         }

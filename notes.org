@@ -1,5 +1,4 @@
 * TODO:
-** BE ABLE TO RESERVE A RENTAL THAT BELONGS TO CUSTOMER
 ** data validation
 - drivers license
 - age
@@ -24,7 +23,6 @@
 ** menu:
 *** view all unpaid charges
 *** add a location
-*** remove a location?
 *** view all locations with the number of cars they have
 - number out and total number
 *** add cars

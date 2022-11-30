@@ -1,5 +1,7 @@
 import java.sql.*;
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 class Clerk {
     Main main;
@@ -14,6 +16,8 @@ class Clerk {
         System.out.println("\t[1] Log in with location ID");
         System.out.println("\t[2] Rent out a car");
         System.out.println("\t[3] Accept a return");
+        System.out.println("\t[4] List outstanding charges at your location");
+        System.out.println("\t[5] View vehicle statuses");
         System.out.println("\t[X] Return to main menu");
         Bridge.prompt("What would you like to do? > ");
         switch (this.main.s.nextLine()) {
@@ -25,6 +29,12 @@ class Clerk {
                 break;
             case "3":
                 this.acceptReturn();
+                break;
+            case "4":
+                this.listOutstandingChargesForLocation();
+                break;
+            case "5":
+                this.listVehicleStatuses();
                 break;
             case "X":
             case "x":
@@ -46,7 +56,7 @@ class Clerk {
         this.checkIDAlreadySelected(true);
         int cid = this.main.bridge.selectCustomer();
         if (cid == -1) return;
-        int vid = this.main.bridge.selectVehicle(lid);
+        int vid = this.selectVehicle(cid);
         if (vid == -1) return;
         Double rate = this.main.bridge.getDouble("Negotiate a daily rate and input it here > ");
         if (rate == null) return;
@@ -64,7 +74,59 @@ class Clerk {
             return;
         } catch(Exception e) {
             Bridge.errln("An error has occurred: try again.");
+            this.main.bridge.rollback();
             this.createRental();
+        }
+    }
+
+    //allows user to select vehicle from their reservations or non-reserved vehicle
+    //returns -1 if x hit
+    int selectVehicle(int cid) {
+        int[] vidrid = this.getVidRidFromReservationAtLocation(cid);
+        if (vidrid != null) {
+            if (vidrid[0] == -1) return -1;
+            this.main.bridge.deleteReservation(vidrid[1], cid, false);
+            return vidrid[0];
+        }
+        int vid = this.main.bridge.selectVehicle(this.lid);
+        if (vid == -1) return -1;
+        return vid;
+    }
+
+    //returns [-1,-1] if x hit
+    int[] getVidRidFromReservationAtLocation(int cid) {
+        this.checkIDAlreadySelected(true);
+        ArrayList<int[]> vidrids = new ArrayList<int[]>();
+        try {
+            PreparedStatement ps = SQLStrings.listReservationsAtLocation(this.main.c);
+            ps.setInt(1, cid);
+            ps.setInt(2, this.lid);
+            ResultSet r = ps.executeQuery();
+            if (!r.isBeforeFirst()) {
+                System.out.println("You have no reservations at this location.");
+                return null;
+            }
+            System.out.println("\nHere is a list of the customer's rentals that location:\n");
+            Printer.print(r);
+            r.beforeFirst();
+            while (r.next()) vidrids.add(new int[]{r.getInt(1), r.getInt(2)});
+
+            int vid = this.main.bridge.getInt("Input the vehicle id of the vehicle to rent > ");
+            if (vid == -1) return new int[]{-1, -1};
+
+            Iterator<int[]> i = vidrids.iterator();
+            while (i.hasNext()) {
+                int[] vr = i.next();
+                if (vr[0] == vid) {
+                    return vr;
+                }
+            }
+            Bridge.errln("The vehicle is not in a reservation for this customer at this location.");
+            return this.getVidRidFromReservationAtLocation(cid);
+        } catch(Exception e) {
+            e.printStackTrace();
+            Bridge.errln("An error occured when viewing the customer's rentals.");
+            return null;
         }
     }
 
@@ -156,18 +218,11 @@ class Clerk {
             this.main.c.commit();
             System.out.println("A charge has been added to your account.");
             System.out.println("Processing complete.");
-            this.run();
         } catch(Exception e) {
-            try {
-                Bridge.defaultErr();
-                Bridge.errln("A value that you have entered may be too large.");
-                Bridge.errln("If your return was processed, it has been reverted.");
-                this.main.c.rollback();
-                this.acceptReturn();
-            } catch(Exception se) {
-                Bridge.errln("A fatal error has occurred.\nGracefully exiting.\nPlease try again.");
-                System.exit(1);
-            }
+            Bridge.defaultErr();
+            Bridge.errln("A value that you have entered may be too large.");
+            this.acceptReturn();
+            this.main.bridge.rollback();
         }
     }
 
@@ -214,6 +269,32 @@ class Clerk {
             e.printStackTrace();
             Bridge.defaultErr();
             return this.getRental(cid);
+        }
+    }
+
+    void listOutstandingChargesForLocation() {
+        checkIDAlreadySelected(true);
+        this.main.bridge.listOutstandingChargesForLocation(this.lid);
+    }
+
+    void listVehicleStatuses() {
+        checkIDAlreadySelected(true);
+        try {
+            PreparedStatement ps = SQLStrings.listVehicleStatuses(this.main.c);
+            ps.setInt(1, this.lid);
+            ps.setInt(2, this.lid);
+            ResultSet r = ps.executeQuery();
+            if (!r.isBeforeFirst()) {
+                Bridge.errln("There are no vehicles at this location");
+                return;
+            } else {
+                System.out.println("\nHere is a list of vehicles with their statuses:\n");
+                Printer.print(r);
+                return;
+            }
+        } catch(Exception e) {
+            Bridge.defaultErr();
+            return;
         }
     }
 

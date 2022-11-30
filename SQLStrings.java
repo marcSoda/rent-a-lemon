@@ -111,10 +111,23 @@ class SQLStrings {
 
     static PreparedStatement listReservations(Connection c) throws SQLException {
         return c.prepareStatement(
-            "SELECT reservation_id, created, make, model, year, color, type " +
-            "FROM reservation NATURAL JOIN vehicle " +
+            "SELECT reservation_id, vehicle_id, location_id, city, created, make, model, year, color, type " +
+            "FROM reservation NATURAL JOIN vehicle NATURAL JOIN location " +
             "WHERE customer_id = ? " +
             "ORDER BY created"
+        );
+    }
+
+    static PreparedStatement listReservationsAtLocation(Connection c) throws SQLException {
+        return c.prepareStatement(
+            "SELECT vehicle_id, reservation_id, location_id, city, created, make, model, year, color, type " +
+            "FROM reservation NATURAL JOIN vehicle NATURAL JOIN location " +
+            "WHERE customer_id = ? " +
+            "AND location_id = ? " +
+            "AND created between sysdate - 10 and sysdate " +
+            "ORDER BY created",
+            ResultSet.TYPE_SCROLL_INSENSITIVE,
+            ResultSet.CONCUR_UPDATABLE
         );
     }
 
@@ -322,4 +335,27 @@ class SQLStrings {
         );
     }
 
+    static PreparedStatement listVehicleStatuses(Connection c) throws SQLException {
+        return c.prepareStatement(
+            "select vehicle_id, make, model, year, color, type, vin, odo, " +
+            "    case when vehicle_id in ( " +
+            "        select vehicle_id " +
+            "        from vehicle v " +
+            "        where location_id = ? " +
+            "        and v.vehicle_id in " +
+            "            (select vehicle_id from vehicle " +
+            "                natural join reservation " +
+            "                where created between sysdate - 10 and sysdate) " +
+            "        or v.vehicle_id in " +
+            "            (select vehicle_id from vehicle " +
+            "            natural join rental " +
+            "            where returned is null) " +
+            "    ) then 'UNAVAILABLE' " +
+            "    else  'AVAILABLE' end as status " +
+            "from vehicle " +
+            "natural join location " +
+            "where location_id = ? " +
+            "order by status"
+        );
+    }
 }
