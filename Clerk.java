@@ -213,8 +213,10 @@ class Clerk {
                 "\n\tInsurance:    $" + insurance +
                 "\n\tOther:        $" + other
             );
-            if (!this.main.bridge.binaryQuery("Are the above details correct?"))
+            if (!this.main.bridge.binaryQuery("Are the above details correct?")) {
+                this.main.bridge.rollback();
                 return;
+            }
             this.main.c.commit();
             System.out.println("A charge has been added to your account.");
             System.out.println("Processing complete.");

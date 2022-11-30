@@ -156,22 +156,23 @@ class Bridge {
         }
     }
 
-    void listOutstandingChargesForCustomer(int cid) {
+    //returns false when there are no outstanding charges or error
+    boolean listOutstandingChargesForCustomer(int cid) {
         try {
             PreparedStatement ps = SQLStrings.listOutstandingChargesForCustomer(this.main.c);
             ps.setInt(1, cid);
             ResultSet r = ps.executeQuery();
             if (!r.isBeforeFirst()) {
                 Bridge.errln("There are no outstanding charges.");
-                return;
+                return false;
             } else {
                 System.out.println("\nHere is a list of outstanding charges:\n");
                 Printer.print(r);
-                return;
+                return true;
             }
         } catch(Exception e) {
             Bridge.defaultErr();
-            return;
+            return false;
         }
     }
 

@@ -114,6 +114,11 @@ class Customer {
         if (dlInfo.get("dln") == null) this.run();
         dlInfo.put("state", this.main.bridge.getString("Input your license state > ", 128));
         if (dlInfo.get("state") == null) this.run();
+        int age = this.main.bridge.getInt("Input your license age > ");
+        if (age < 25) {
+            Bridge.errln("All Hurts customers must be 25 or older");
+            this.run();
+        }
         dlInfo.put("age", Bridge.itos(this.main.bridge.getInt("Input your license age > ")));
         if (dlInfo.get("age") == null) this.run();
         try {
@@ -212,7 +217,8 @@ class Customer {
 
     void completeCharge() {
         this.checkIDAlreadySelected(true);
-        this.main.bridge.listOutstandingChargesForCustomer(this.cid);
+        if (!this.main.bridge.listOutstandingChargesForCustomer(this.cid))
+            return;
         int chid = this.main.bridge.getInt("Input the charge ID > ");
         if (chid == -1) return;
         try {
