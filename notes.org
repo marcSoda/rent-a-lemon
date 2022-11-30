@@ -40,3 +40,6 @@
 
 
 * RIGOROUSLY TEST PASSING BETWEEN FUNCTIONS BECAUSE SOME OF THE RECURSION MAY BE WEIRD AND PLACE YOU BACK INTO AN UNNATURAL METHOD IF A RETURN WAS DONE INCORRECTLY
+
+            c = DriverManager.getConnection("jdbc:oracle:thin:@127.0.0.1:1521:cse241", login, pwd);
+            c = DriverManager.getConnection("jdbc:oracle:thin:@127.0.0.1:1521:cse241", "masa20", "1234");
