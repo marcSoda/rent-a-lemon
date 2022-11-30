@@ -8,7 +8,7 @@ class Manager {
     }
 
     void run() {
-        System.out.println("\nManager Interface?");
+        System.out.println("\nManager Interface");
         System.out.println("\t[1] View number of vehicles at each location");
         System.out.println("\t[2] Add a vehicle");
         System.out.println("\t[3] Move a vehicle");

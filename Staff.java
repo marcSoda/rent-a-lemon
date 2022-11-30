@@ -12,7 +12,7 @@ class Staff {
     }
 
     void run() {
-        System.out.println("\nSmployee Interface?");
+        System.out.println("\nStaff Interface");
         System.out.println("\t[1] Log in with location ID");
         System.out.println("\t[2] Rent out a car");
         System.out.println("\t[3] Accept a return");

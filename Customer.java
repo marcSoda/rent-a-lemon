@@ -10,7 +10,7 @@ class Customer {
     }
 
     void run() {
-        System.out.println("\nCustomer Interface?");
+        System.out.println("\nCustomer Interface");
         System.out.println("\t[1] Log in using your customer ID");
         System.out.println("\t[2] Create a new customer account");
         System.out.println("\t[3] Make a reservation");
